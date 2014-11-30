@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Device Properties Example</title>
+    
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    
+    <script src="js/jquery-1.9.1.min.js" ></script>
+    <script src="js/jquery.mobile-1.3.1.min.js"></script>
+    
+    <script type="text/javascript" charset="utf-8">
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+    
+    // device APIs are available
+    //
+    function onDeviceReady() {
+        
+        // user id get
+        $("#userid").val(window.localStorage.getItem("userid"));
+        //
+        
+        setInterval(function () {
+            navigator.geolocation.getCurrentPosition(onSuccess, onError)
+        }, 3000);
+        
+    }
+    
+    // onSuccess Geolocation
+    //
+    function onSuccess(position) {
+        
+        // post
+        var userid= window.localStorage.getItem("userid");
+        $.ajax({
+            type  : "POST",
+            url : "http://inkodeo.be/Webservices/gloc.php",
+            data: {
+                    userid : userid,
+                    latitude : position.coords.latitude,
+                    longitude : position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    timestamp: position.timestamp,
+                    heading: position.coords.heading,
+                    speed: position.coords.speed,
+                    altitude: position.coords.altitude,
+                    altitudeAccuracy: position.coords.altitudeAccuracy
+                  },
+            error: function () {
+                //
+                element.innerHTML += '<br/>0';
+            }
+            });
+        
+        // end post
+        
+        var element = document.getElementById('geolocation');
+        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+                            'Longitude: '          + position.coords.longitude             + '<br />' +
+                            'Altitude: '           + position.coords.altitude              + '<br />' +
+                            'Accuracy: '           + position.coords.accuracy              + '<br />' +
+                            'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
+                            'Heading: '            + position.coords.heading               + '<br />' +
+                            'Speed: '              + position.coords.speed                 + '<br />' +
+                            'Timestamp: '          + position.timestamp                    + '<br />';
+    }
+
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }
+
+    </script>
+  </head>
+  <body>
+     
+        <form id="userLoginForm">   
+          <div data-role="fieldcontain">
+              <input type="text" id="userid" name="userid"  placeholder="Type your User ID here"  />
+              <input type="button" id="userIdButton" value="set" />
+          </div>
+        </form>
+      
+        <p id="geolocation">Finding geolocation...</p>
+
+        <script>
+            $("#userIdButton").click ( function (event)
+            {
+                document.addEventListener("deviceready", onDeviceReady, false);
+                function onDeviceReady() {
+                    window.localStorage.setItem("userid", $("#userid").val());
+                }
+            });
+        </script>
+        
+  </body>
+  
+</html>
